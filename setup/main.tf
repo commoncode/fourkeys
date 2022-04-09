@@ -1,4 +1,11 @@
 terraform {
+  cloud {
+    organization = "commoncode"
+
+    workspaces {
+      name = "fourkeys"
+    }
+  }
   required_version = ">= 1.0"
   required_providers {
     google = {
