@@ -35,6 +35,9 @@ steps:
   id: deploy
   waitFor: push
 
+options:
+  logging: CLOUD_LOGGING_ONLY
+  
 images: [
   'gcr.io/$PROJECT_ID/github-parser:${_TAG}'
 ]
