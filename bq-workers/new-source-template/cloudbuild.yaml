@@ -39,5 +39,7 @@ images: [
   'gcr.io/$PROJECT_ID/${_SOURCE}-parser'
 ]
 
+logsBucket: 'gs://${PROJECT_ID}-cloudbuild-logs'
+
 options:
   logging: CLOUD_LOGGING_ONLY

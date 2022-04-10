@@ -35,6 +35,8 @@ steps:
   id: deploy
   waitFor: push
 
+logsBucket: 'gs://${PROJECT_ID}-cloudbuild-logs'
+
 options:
   logging: CLOUD_LOGGING_ONLY
   
