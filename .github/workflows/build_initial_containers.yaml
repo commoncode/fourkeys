@@ -56,16 +56,16 @@ jobs:
         if: steps.filter.outputs.event_handler == 'true' || github.event_name == 'workflow_dispatch'
         working-directory: './'
         run: |
-          gcloud builds submit ./event_handler --tag=gcr.io/${{ env.FOURKEYS_PROJECT }}/event-handler --project=${{ env.PARENT_PROJECT }} --suppress-logs
+          gcloud builds submit ./event_handler --tag=gcr.io/${{ env.FOURKEYS_PROJECT }}/event-handler --project=${{ env.PARENT_PROJECT }} --gcs-log-dir=gs://${{ env.PARENT_PROJECT }}-cloudbuild-logs
 
       - name: Build and launch Git parser container
         if: steps.filter.outputs.bq_workers == 'true' || github.event_name == 'workflow_dispatch'
         working-directory: './'
         run: |
-          gcloud builds submit ./bq-workers/github-parser --tag=gcr.io/${{ env.FOURKEYS_PROJECT }}/github-parser --project=${{ env.PARENT_PROJECT }} --suppress-logs
+          gcloud builds submit ./bq-workers/github-parser --tag=gcr.io/${{ env.FOURKEYS_PROJECT }}/github-parser --project=${{ env.PARENT_PROJECT }} --gcs-log-dir=gs://${{ env.PARENT_PROJECT }}-cloudbuild-logs
 
       - name: Build and launch dashboard container
         if: steps.filter.outputs.dashboard == 'true' || github.event_name == 'workflow_dispatch'
         working-directory: './'
         run: |
-          gcloud builds submit ./dashboard --tag=gcr.io/${{ env.FOURKEYS_PROJECT }}/fourkeys-grafana-dashboard --project=${{ env.PARENT_PROJECT }} --suppress-logs
+          gcloud builds submit ./dashboard --tag=gcr.io/${{ env.FOURKEYS_PROJECT }}/fourkeys-grafana-dashboard --project=${{ env.PARENT_PROJECT }} --gcs-log-dir=gs://${{ env.PARENT_PROJECT }}-cloudbuild-logs
