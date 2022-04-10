@@ -1,0 +1,71 @@
+name: Build the containers for each service
+env:
+  working_dir: './setup/'
+  FOURKEYS_PROJECT: 'fourkeys-009742'
+  PARENT_PROJECT: 'fourkeys-346715'
+  REGION: 'australia-southeast1'
+
+on:
+  push:
+    branches:
+      - 'main'
+      - 'release/**'
+  workflow_dispatch:
+    branches: ['main', 'release/**']
+
+jobs:
+  build-gc:
+    name: 'Submit container builds to GCP'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.working_dir }}
+    # Add "id-token" with the intended permissions.
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v0'
+        with:
+          workload_identity_provider: 'projects/92964762464/locations/global/workloadIdentityPools/fourkeys-pool/providers/fourkeys-provider'
+          service_account: 'fourkeys-service-account@fourkeys-346715.iam.gserviceaccount.com'
+
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v0'
+
+      - name: 'Use gcloud CLI'
+        run: 'gcloud info'
+
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            event_handler:
+              - 'event_handler/**'
+            bq_workers:
+              - 'bq-workers/**'
+            dashboard:
+              - 'dashboard/**'
+
+      - name: Build and launch event-handler container
+        if: steps.filter.outputs.event_handler == 'true' || github.event_name == 'workflow_dispatch'
+        working-directory: './'
+        run: |
+          gcloud builds submit ./event_handler --tag=gcr.io/${{ env.FOURKEYS_PROJECT }}/event-handler --project=${{ env.PARENT_PROJECT }}
+
+      - name: Build and launch Git parser container
+        if: steps.filter.outputs.bq_workers == 'true' || github.event_name == 'workflow_dispatch'
+        working-directory: './'
+        run: |
+          gcloud builds submit ./bq-workers/github-parser --tag=gcr.io/${{ env.FOURKEYS_PROJECT }}/github-parser --project=${{ env.PARENT_PROJECT }}
+
+      - name: Build and launch dashboard container
+        if: steps.filter.outputs.dashboard == 'true' || github.event_name == 'workflow_dispatch'
+        working-directory: './'
+        run: |
+          gcloud builds submit ./dashboard --tag=gcr.io/${{ env.FOURKEYS_PROJECT }}/fourkeys-grafana-dashboard --project=${{ env.PARENT_PROJECT }}
