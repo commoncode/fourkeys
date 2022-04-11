@@ -10,6 +10,10 @@ on:
     branches:
       - 'main'
       - 'release/**'
+    paths:
+      - 'event_handler/**'
+      - 'bq-workers/**'
+      - 'dashboard/**'
   workflow_dispatch:
     branches: ['main', 'release/**']
 
