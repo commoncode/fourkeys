@@ -23,7 +23,7 @@ resource "google_cloud_run_service" "dashboard" {
     latest_revision = true
   }
   metadata {
-    labels = {"created_by":"fourkeys"}
+    labels = { "created_by" : "fourkeys" }
   }
   autogenerate_revision_name = true
 }
