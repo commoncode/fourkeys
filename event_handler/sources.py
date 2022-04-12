@@ -149,6 +149,6 @@ AUTHORIZED_SOURCES = {
         "Circleci-Signature", circleci_verification
         ),
     "sentry": EventSource(
-        "sentry-hook-signature", sentry_verification
+        "Sentry-Hook-Signature", sentry_verification
         ),
 }
