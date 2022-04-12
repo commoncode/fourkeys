@@ -76,7 +76,7 @@ resource "google_secret_manager_secret_iam_member" "event_handler" {
 }
 
 data "google_secret_manager_secret" "sentry_client" {
-  secret_id = "sentry_client"
+  secret_id = "sentry-client"
   project   = var.project_id
 }
 
