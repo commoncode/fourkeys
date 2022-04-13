@@ -15,6 +15,7 @@
 import base64
 import os
 import json
+import sys
 
 import shared
 
@@ -63,7 +64,7 @@ def index():
             "json_payload": envelope,
         }
         print(json.dumps(entry))
-
+    sys.stdout.flush()
     return "", 204
 
 

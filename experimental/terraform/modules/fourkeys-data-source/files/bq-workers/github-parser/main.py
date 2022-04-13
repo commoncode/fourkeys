@@ -31,11 +31,16 @@ def index():
     Parses the message, and inserts it into BigQuery.
     """
     event = None
-    envelope = request.get_json()
+    try:
+        envelope = request.get_json()
+    except Exception as e:
+        envelope = None
+        print(str(e))
 
     # Check that data has been posted
     if not envelope:
         raise Exception("Expecting JSON payload")
+
     # Check that message is a valid pub/sub message
     if "message" not in envelope:
         raise Exception("Not a valid Pub/Sub Message")

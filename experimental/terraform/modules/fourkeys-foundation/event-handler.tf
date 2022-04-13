@@ -74,3 +74,16 @@ resource "google_secret_manager_secret_iam_member" "event_handler" {
   member     = "serviceAccount:${google_service_account.fourkeys.email}"
   depends_on = [google_secret_manager_secret.event_handler, google_secret_manager_secret_version.event_handler]
 }
+
+data "google_secret_manager_secret" "sentry_client" {
+  secret_id = "sentry-client"
+  project   = var.project_id
+}
+
+resource "google_secret_manager_secret_iam_member" "sentry_client" {
+  project   = var.project_id
+  secret_id = data.google_secret_manager_secret.sentry_client.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.fourkeys.email}"
+}
+

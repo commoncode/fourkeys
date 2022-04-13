@@ -57,26 +57,24 @@ def test_missing_msg_attributes(client):
     assert "Missing pubsub attributes" in str(e.value)
 
 
-def test_cloud_build_event_processed(client):
-    data = json.dumps({"createTime": 1, "startTime": 2, "finishTime": 3}).encode(
-        "utf-8"
-    )
+def test_new_source_event_processed(client):
+    data = json.dumps({"foo": "bar"}).encode("utf-8")
     pubsub_msg = {
         "message": {
             "data": base64.b64encode(data).decode("utf-8"),
-            "attributes": {"buildId": "foo"},
+            "attributes": {"foo": "bar"},
             "message_id": "foobar",
         },
     }
 
-    build_event = {
-        "event_type": "build",
-        "id": "foo",
-        "metadata": '{"createTime": 1, "startTime": 2, "finishTime": 3}',
-        "time_created": 3,
-        "signature": shared.create_unique_id(pubsub_msg["message"]),
+    event = {
+        "event_type": "event_type",
+        "id": "e_id",
+        "metadata": '{"foo": "bar"}',
+        "time_created": 0,
+        "signature": "signature",
         "msg_id": "foobar",
-        "source": "cloud_build",
+        "source": "source",
     }
 
     shared.insert_row_into_bigquery = mock.MagicMock()
@@ -87,5 +85,5 @@ def test_cloud_build_event_processed(client):
         headers={"Content-Type": "application/json"},
     )
 
-    shared.insert_row_into_bigquery.assert_called_with(build_event)
+    shared.insert_row_into_bigquery.assert_called_with(event)
     assert r.status_code == 204

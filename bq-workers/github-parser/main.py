@@ -30,11 +30,16 @@ def index():
     Parses the message, and inserts it into BigQuery.
     """
     event = None
-    envelope = request.get_json()
+    try:
+        envelope = request.get_json()
+    except Exception as e:
+        envelope = None
+        print(str(e))
 
     # Check that data has been posted
     if not envelope:
         raise Exception("Expecting JSON payload")
+
     # Check that message is a valid pub/sub message
     if "message" not in envelope:
         raise Exception("Not a valid Pub/Sub Message")
@@ -58,11 +63,11 @@ def index():
 
     except Exception as e:
         entry = {
-                "severity": "WARNING",
-                "msg": "Data not saved to BigQuery",
-                "errors": str(e),
-                "json_payload": envelope
-            }
+            "severity": "WARNING",
+            "msg": "Data not saved to BigQuery",
+            "errors": str(e),
+            "json_payload": envelope,
+        }
         print(json.dumps(entry))
 
     return "", 204
@@ -76,10 +81,19 @@ def process_github_event(headers, msg):
     if "Mock" in headers:
         source += "mock"
 
-    types = {"push", "pull_request", "pull_request_review",
-             "pull_request_review_comment", "issues",
-             "issue_comment", "check_run", "check_suite", "status",
-             "deployment_status", "release"}
+    types = {
+        "push",
+        "pull_request",
+        "pull_request_review",
+        "pull_request_review_comment",
+        "issues",
+        "issue_comment",
+        "check_run",
+        "check_suite",
+        "status",
+        "deployment_status",
+        "release",
+    }
 
     if event_type not in types:
         raise Exception("Unsupported GitHub event: '%s'" % event_type)
@@ -111,13 +125,16 @@ def process_github_event(headers, msg):
         e_id = metadata["comment"]["id"]
 
     if event_type == "check_run":
-        time_created = (metadata["check_run"]["completed_at"] or
-                        metadata["check_run"]["started_at"])
+        time_created = (
+            metadata["check_run"]["completed_at"] or metadata["check_run"]["started_at"]
+        )
         e_id = metadata["check_run"]["id"]
 
     if event_type == "check_suite":
-        time_created = (metadata["check_suite"]["updated_at"] or
-                        metadata["check_suite"]["created_at"])
+        time_created = (
+            metadata["check_suite"]["updated_at"]
+            or metadata["check_suite"]["created_at"]
+        )
         e_id = metadata["check_suite"]["id"]
 
     if event_type == "deployment_status":
@@ -129,8 +146,9 @@ def process_github_event(headers, msg):
         e_id = metadata["id"]
 
     if event_type == "release":
-        time_created = (metadata["release"]["published_at"] or
-                        metadata["release"]["created_at"])
+        time_created = (
+            metadata["release"]["published_at"] or metadata["release"]["created_at"]
+        )
         e_id = metadata["release"]["id"]
 
     github_event = {

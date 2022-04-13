@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import hmac
-from hashlib import sha1
+from hashlib import sha1, sha256
 import os
 
 from google.cloud import secretmanager
@@ -84,6 +84,20 @@ def simple_token_verification(token, body):
     return secret.decode() == token
 
 
+def sentry_verification(signature, body):
+    """
+    Verifies that the signature received from the sentry event is accurate
+    """
+    client_secret = get_secret(PROJECT_NAME, "sentry-client", "latest")
+
+    expected_signature = hmac.new(
+        key=client_secret.encode("utf-8"),
+        msg=body,
+        digestmod=sha256,
+    ).hexdigest()
+    return hmac.compare_digest(signature, expected_signature)
+
+
 def get_secret(project_name, secret_name, version_num):
     """
     Returns secret payload from Cloud Secret Manager
@@ -115,6 +129,9 @@ def get_source(headers):
     if "Circleci-Event-Type" in headers:
         return "circleci"
 
+    if "sentry-hook-signature" in headers:
+        return "sentry"
+
     return headers.get("User-Agent")
 
 
@@ -130,5 +147,8 @@ AUTHORIZED_SOURCES = {
         ),
     "circleci": EventSource(
         "Circleci-Signature", circleci_verification
+        ),
+    "sentry": EventSource(
+        "Sentry-Hook-Signature", sentry_verification
         ),
 }
