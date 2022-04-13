@@ -64,7 +64,7 @@ def test_tekton_source_event_processed(client):
         "type": "tekton.foo",
         "source": "https://example.com/event-producer",
         "time": 0,
-        "id": "bar"
+        "id": "bar",
     }
     data = {"pipelineRun": {"metadata": {"uid": "foo"}}}
     event = CloudEvent(attributes, data)
