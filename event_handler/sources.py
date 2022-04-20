@@ -91,7 +91,7 @@ def sentry_verification(signature, body):
     client_secret = get_secret(PROJECT_NAME, "sentry-client", "latest")
 
     expected_signature = hmac.new(
-        key=client_secret.encode("utf-8"),
+        key=client_secret,
         msg=body,
         digestmod=sha256,
     ).hexdigest()

@@ -37,6 +37,8 @@ def index():
     source = sources.get_source(request.headers)
 
     if source not in sources.AUTHORIZED_SOURCES:
+        print(request.headers.keys())
+        sys.stdout.flush()
         raise Exception(f"Source not authorized: {source}")
 
     auth_source = sources.AUTHORIZED_SOURCES[source]
