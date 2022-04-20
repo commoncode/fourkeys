@@ -60,7 +60,7 @@ jobs:
         if: steps.filter.outputs.event_handler == 'true' || github.event_name == 'workflow_dispatch'
         working-directory: './'
         run: |
-          gcloud builds submit ./event_handler --tag=gcr.io/${{ env.FOURKEYS_PROJECT }}/event-handler --project=${{ env.PARENT_PROJECT }} --gcs-log-dir=gs://${{ env.PARENT_PROJECT }}-cloudbuild-logs
+          gcloud builds submit ./event_handler --config=./event_handler/cloudbuild.yaml --tag=gcr.io/${{ env.FOURKEYS_PROJECT }}/event-handler --project=${{ env.PARENT_PROJECT }} --gcs-log-dir=gs://${{ env.PARENT_PROJECT }}-cloudbuild-logs
 
       - name: Build and launch Git parser container
         if: steps.filter.outputs.bq_workers == 'true' || github.event_name == 'workflow_dispatch'
