@@ -129,7 +129,7 @@ def get_source(headers):
     if "Circleci-Event-Type" in headers:
         return "circleci"
 
-    if "sentry-hook-signature" in headers:
+    if "Sentry-Hook-Signature" in headers:
         return "sentry"
 
     return headers.get("User-Agent")
